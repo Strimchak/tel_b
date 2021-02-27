@@ -10,13 +10,16 @@ import subprocess
 from subprocess import Popen, PIPE
 from os.path import abspath, dirname, join
 
+import sounddevice as sd
+from scipy.io.wavfile import write
+
 ran = 0
 bot = telebot.TeleBot("")
 @bot.message_handler(commands=["start"])
 def keyboard(message):
     key = types.ReplyKeyboardMarkup(resize_keyboard=True)
     item1 = types.KeyboardButton("PHOTO")
-    item2 = types.KeyboardButton("UPDATE")
+    item2 = types.KeyboardButton("AUDIO")
     key.add(item1, item2)
 
     bot.send_message(message.chat.id, "Добро пожаловать, {0.first_name}!\nЯ - <b>{1.first_name}</b>, бот созданный чтобы облегчить вам жизнь.".format(
@@ -57,8 +60,16 @@ def Klava(message):
 
             bot.send_message(
                 message.chat.id, '\t🙏 Вибери Щось 🙏', reply_markup=markup)
-        elif message.text == 'XZ':
-            bot.send_message(message.chat.id, '\tХЗ ЩЕ НЕ ПРИДУМАВ')
+        elif message.text == 'AUDIO':
+            markup = types.InlineKeyboardMarkup(row_width=1)
+            item1 = types.InlineKeyboardButton(
+                "START RECORD", callback_data='record')
+            item2 = types.InlineKeyboardButton(
+                "STOP RECORD", callback_data='stop_record')
+            markup.add(item1) #Кількість кнопок
+
+            bot.send_message(
+                message.chat.id, '\tОпції запису🎤', reply_markup=markup)
         else:
             bot.send_message(message.chat.id, 'ОК 😢')
 
@@ -93,6 +104,23 @@ def callback_inline(call):
                 path = abspath(join(dirname(__file__), 'test.bat'))
                 subprocess.call(
                     [path])
+
+            elif call.data == 'record':
+                print("R")
+                fs = 44100  # Sample rate
+                seconds = 10  # Duration of recording
+
+                myrecording = sd.rec(int(seconds * fs), samplerate=fs, channels=2)
+                sd.wait()  # Wait until recording is finished
+                write('output.wav', fs, myrecording)  # Save as WAV file 
+                record = open("output.wav", "rb")
+                bot.send_audio(call.message.chat.id, record)
+
+
+            elif call.data == 'stop_record':
+                print("RS")
+
+
             bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id, text="Дані відправлено!",
                                   reply_markup=None)
 
